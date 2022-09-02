@@ -4,32 +4,32 @@ let todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of tod
 export const INITIAL_EVENTS = [
   {
     id: createEventId(),
-    title: 'אירוע ב',
-    name: 'אאאא',
+    title: 'יא וולי',
+    name: 'יונתן  ',
     start: todayStr + 'T14:00:00'
   },
   {
     id: createEventId(),
-    title: 'אירוע ב',
-    name: 'אאאא',
+    title: 'איזה אירועים',
+    name: 'יונתן',
     start: todayStr + 'T02:00:00'
   },
   {
     id: createEventId(),
-    title: 'אירוע ב',
-    name: 'אאאא',
+    title: 'אירועעע',
+    name: 'נדב',
     start: todayStr + 'T12:00:00'
   },
   {
     id: createEventId(),
     title: 'אירוע ב',
-    name: 'אאאא',
+    name: 'יועד',
     start: todayStr + 'T20:00:00'
   },
   {
     id: createEventId(),
-    title: 'אירוע ב',
-    name: 'אאאא',
+    title: 'אירועשדגב',
+    name: 'שקד',
     start: todayStr + 'T22:00:00'
   }
 ]

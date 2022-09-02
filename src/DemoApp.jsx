@@ -1,64 +1,57 @@
 /* eslint-disable no-restricted-globals */
 import React from 'react'
+
+
 import FullCalendar, { formatDate } from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
+import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { INITIAL_EVENTS, createEventId } from './event-utils'
 // import moment from 'moment'
 import heLocale from '@fullcalendar/core/locales/he';
-// const { MongoClient } = require('mongodb');
 
-// const uri =
-//   "mongodb+srv://Yonatan:Z1x2c3v4y@calendar.x0xgfz3.mongodb.net/?retryWrites=true&w=majority";
-// const client = new MongoClient(uri);
-// async function run(p) {
-//   try {
-//     const database = client.db('sample_mflix');
-//     const users = database.collection('users');
-//     // Query for a movie that has the title 'Back to the Future'
-//     const doc = { phone: p };
-//     const user = await users.insertOne(doc);
-//     console.log(user);
-//   } finally {
-//     await client.close();
-//   }
-// }
-// run().catch(console.dir);
+class User{
+  blocked;
+  admin;
 
-let adminPhones = ["123", "456"]
-var adminState = false
+  constructor(phone, blocked = false, admin = false){
+    this.phone = phone;
+    this.blocked = blocked;
+    this.admin = admin;
+  }
+
+  block(){ this.blocked = true; console.log("נחסם") }
+  unblock(){ this.blocked = false; console.log("בוטלה החסימה")}
+}
+
+let adminUser = new User("0502240010", false, true)
+
+// let users = [adminUser]
 const phoneRegex = new RegExp('^05[0-9]-?[0-9]{7}$')
-var isLoggedIn = false
 
-function adminTheme(){
+
+var genColor = () => {
+  let hue = 360 * Math.random()
+  let stauration = 25 + 70 * Math.random()
+  let lightness = 78 + 4 * Math.random()
+
+  let color = "hsl(" + hue + ',' +
+    stauration + '%,' +
+    lightness + '%)'
+
+  let lightercolor = "hsl(" + hue + ',' +
+    (stauration-7) + '%,' +
+    (lightness+13) + '%)'
+
+
   var r = document.querySelector(':root');
-
-  if(adminState){
-    r.style.setProperty('--admin-state', 'var(--user-color)');
-    r.style.setProperty('--user-state', 'var(--disabled)');
-  }
-  else{
-    r.style.setProperty('--user-state', 'var(--user-color)');
-    r.style.setProperty('--admin-state', 'var(--disabled)');
-  }
+  r.style.setProperty('--user-color', color);
+  r.style.setProperty('--lighter-user-color', lightercolor);
 }
 
-function login(){
-  if (isLoggedIn === false){
-    let loginPhone = prompt('מה מספר הטלפון שלך?').replace("-", "")
-    if (phoneRegex.test(loginPhone) === true){
-      alert('התחברת בהצלחה!')
-      isLoggedIn = true
-      console.log(loginPhone)
-    }
-    else{
-      alert('נא להכניס מספר טלפון תקין!')
-    }
-  }
-  else return
-}
+genColor()
 
-export default class DemoApp extends React.Component {
+export default class App extends React.Component {
   state = {
     weekendsVisible: true,
     currentEvents: [],
@@ -66,27 +59,68 @@ export default class DemoApp extends React.Component {
       startTime: '08:00', endTime: '18:00'
     },
     slotDuration: {minutes:30},
+    isLoggedIn: false,
+    adminState: false,
+    currentUser: {}
   }
   
-  render() {
-    login()  
+  adminTheme(){
+    var r = document.querySelector(':root');
+    
+    if(this.state.adminState){
+      r.style.setProperty('--admin-state', 'var(--user-color)');
+      r.style.setProperty('--user-state', "var(--lighter-user-color)");
+    }
 
+    else{
+      r.style.setProperty('--user-state', 'var(--user-color)');
+      r.style.setProperty('--admin-state', "var(--lighter-user-color)");
+    }
+  }
+
+  handleLogin() {
+    console.log(this.state.isLoggedIn)
+    if (this.state.isLoggedIn === false){
+      let loginPhone = prompt('מה מספר הטלפון שלך?').replace("-", "")
+      if (phoneRegex.test(loginPhone) === true){
+        alert('התחברת בהצלחה!')
+        if (loginPhone == adminUser.phone){
+          this.setState({ adminState: true })
+          this.adminTheme()
+        }
+        this.setState({ isLoggedIn: true })
+        let loggingUser = new User(loginPhone, false, false)
+
+        this.setState({ currentUser: loggingUser })
+
+      }
+      else{
+        alert('נא להכניס מספר טלפון תקין!')
+        this.handleLogin()
+      }
+    }
+    else {return {}}
+    console.log(this.state.currentUser)
+  }
+
+  render() {
     return(
-    <div className='app'>
-        {this.renderCalendar()}
+      <div className='app' onLoadStart={() => this.handleLogin()}>
+        <div className='calendar'>
+          {this.renderCalendar()}
+        </div>
         <div className='sidebar'>
           {this.renderActions()}
           {this.renderSidebar()}
         </div>
       </div>
-  )
+    )
   }
 
   renderCalendar(){
     return (
-        <div className='calendar'>
           <FullCalendar
-            plugins={[timeGridPlugin, interactionPlugin]}
+            plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
             headerToolbar={{
               start: 'prev,next today',
               center: 'title',
@@ -96,16 +130,18 @@ export default class DemoApp extends React.Component {
               user: {
                   text: 'משתמש 🙂',
                   click: () => {
-                    adminState = false;
-                    adminTheme()
+                    this.setState({
+                      adminState: false
+                    })
+                    this.adminTheme()
                   }
               },
               admin: {
                 text: 'מנהל 😎',
                 click: () => {
-                  if (adminPhones.includes(prompt('הכניסו מספר טלפון'))) {
-                    adminState = true;
-                    adminTheme()
+                  if (prompt('הכניסו מספר טלפון') == adminUser.phone) {
+                    this.setState({ adminState: true })
+                    this.adminTheme()
                   } else {
                     alert('אתה לא מנהל!')
                   }
@@ -139,13 +175,10 @@ export default class DemoApp extends React.Component {
             eventClick={this.handleEventClick}
             eventsSet={this.handleEvents} // called after events are initialized/added/changed/removed
             
-            /* you can update a remote database when these fire:
-            eventAdd={function(){}}
+            eventAdd={function(){console.log("add")}}
             eventChange={function(){}}
             eventRemove={function(){}}
-            */
           />
-        </div>
       )
   }
 
@@ -166,17 +199,19 @@ export default class DemoApp extends React.Component {
   }
 
   handleDateSelect = (selectInfo) => {
-    let title = prompt('מה שם האירוע?')
+    let current_state = this.state
     let calendarApi = selectInfo.view.calendar
-     
     calendarApi.unselect() // clear date selection
+    let name = prompt('נא להכניס שם מלא')
+     
 
-    if (title) {
+    if (name) {
       calendarApi.addEvent({
+        extendedProps: {name: name},
         id: createEventId(),
-        title,
+        title: prompt('הערות?'),
         start: selectInfo.startStr,
-        end: selectInfo.startStr + {minutes:30}
+        end: selectInfo.startStr + current_state.slotDuration
       })
     }
   }
@@ -192,24 +227,43 @@ export default class DemoApp extends React.Component {
       currentEvents: events
     })
   }
+
 }
+
 
 function renderEventContent(eventInfo) {
   return (
-    <>
-      <b>{eventInfo.timeText}</b>
-      <i>{eventInfo.event.title}</i>
-    </>
+    <div>
+      <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
+      <b>{eventInfo.event.title}</b>
+  </div>
   )
 }
 
 function renderSidebarEvent(event) {
+  if (event.title === ""){
+    return (
+      <div key={event.id} className="eventCard">
+        <div className="cardContent">
+        <p>
+          <b>{event.extendedProps.name} / </b>
+          <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric', minute:'numeric'})}</span>
+        </p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div key={event.id} className="eventCard">
       <div className="cardContent">
-        <p>{formatDate(event.start, {locale: 'he', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute:'numeric'})}</p>
+        <p>
+          <b>{event.extendedProps.name} / </b>
+          <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric',
+            minute:'numeric'})}</span>
+        </p>
         <p>הערה:<b>{event.title}</b></p>
       </div>
     </div>
   )
 }
+

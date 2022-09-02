@@ -16,13 +16,19 @@ body > div { /* the react root */
   to{opacity: 1;}
 }
 
+
+
 :root{
   --fc-event-text-color: #000;
-  --user-color: rgb(169, 218, 201);
-  --disabled: rgba(169, 218, 201, 0.384);
-  --user-state: rgb(169, 218, 201);
-  --admin-state: var(--disabled);
+  --user-color: #ccc;
+  --lighter-user-color: #fff;
+  --user-state: var(--user-color);
+  --admin-state: var(--lighter-user-color);
   animation: load-root 0.5s;
+}
+
+.fc-day-today{
+  background-color: var(--lighter-user-color) !important;
 }
 
 ul {
@@ -181,7 +187,7 @@ b { /* used for event dates/times */
   box-shadow: none !important;
 }
 .fc-button:active{
-  box-shadow: 0px 0px 0px 2px var(--user-color)  !important;
+  box-shadow: 0px 0px 0px 2px currentColor  !important;
 
 }
 .fc-icon{
