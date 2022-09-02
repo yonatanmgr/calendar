@@ -1,0 +1,202 @@
+
+html,
+body,
+body > div { /* the react root */
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  height: 100%;
+  width: 100%;
+}
+
+@keyframes load-root {
+  from{opacity: 0;}
+  to{opacity: 1;}
+}
+
+:root{
+  --fc-event-text-color: #000;
+  --user-color: rgb(169, 218, 201);
+  --disabled: rgba(169, 218, 201, 0.384);
+  --user-state: rgb(169, 218, 201);
+  --admin-state: var(--disabled);
+  animation: load-root 0.5s;
+}
+
+ul {
+  margin: 0;
+  padding: 0 0 0 1.5em;
+}
+
+.eventCard{
+  background-color: var(--user-color);
+  border-radius: 12px;
+  padding: 3px;
+  margin-bottom: 12px;
+  animation: append-animate .3s;
+  transform-origin: 50% 0;
+  transition: ease 300ms;
+}
+
+@keyframes append-animate {
+	from {
+		transform: scaleY(0);
+		opacity: 0;
+	}
+	to {
+		transform: scaleY(1);
+		opacity: 1;
+	}
+}
+
+.eventCard:hover{
+  filter: brightness(110%);
+  cursor: pointer;
+  
+}
+
+.cardContent{
+  color: black;
+  margin-right: 10px;
+}
+
+li {
+  margin: 1.5em 0;
+  padding: 0;
+}
+
+h1{
+  margin: 0px;
+}
+
+b { /* used for event dates/times */
+  margin-right: 3px;
+}
+
+.app {
+  display: flex;
+  height: 100%;
+  font-family: 'Rubik', "Calibri", "Arial";
+}
+
+.sidebar{
+  width: 20%;
+  padding-left: 2em;
+  padding-right: 2em;
+  padding-bottom: 3em;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.actions{
+  padding-top: 3em;
+  text-align: center;
+  padding-bottom: 1.65em;
+  
+}
+
+
+
+.eventList {
+  line-height: 1.5;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* .demo-app-sidebar-section {
+  padding: 2em;
+} */
+
+.counter{
+  font-size: 0.5em !important;
+  vertical-align: 20%;
+  background-color: rgb(255, 82, 82);
+  color: white;
+  border-radius: 30px;
+  font-weight: 300;
+  padding: 0.1em;
+}
+
+.calendar {
+  width: 80%;
+  padding-left: 3em;
+  padding-top: 3em;
+  padding-bottom: 3em;
+  padding-right: 1em;
+  
+}
+
+.fc { /* the calendar root */
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  
+}
+.fc table{
+  border-radius: 12px !important;
+}
+
+.fc-timegrid-event{
+  background-color: var(--user-color) !important;
+  transition: 300ms;
+  
+}
+.fc-timegrid-event:hover{
+  filter: brightness(110%);
+}
+
+
+.fc-button{
+  background-color: var(--user-color) !important;
+  border: none !important;
+  transition: ease 200ms;
+}
+
+.fc-button.fc-user-button{
+  border-radius: 40px !important;
+  color: black !important;
+  background-color: var(--user-state) !important;
+  
+}
+.fc-button.fc-admin-button{
+  border-radius: 40px !important;
+  color: black !important;
+  background-color: var(--admin-state) !important;
+  
+}
+ 
+.fc-button:hover{
+  filter: brightness(110%) !important;
+}
+
+.fc-button:focus{
+  box-shadow: none !important;
+}
+.fc-button:active{
+  box-shadow: 0px 0px 0px 2px var(--user-color)  !important;
+
+}
+.fc-icon{
+  color: black !important;
+}
+
+.fc-today-button{
+  color: black !important;
+  background-color: rgb(178, 178, 178) !important;
+}
+
+td.fc-timegrid-slot.fc-timegrid-slot-lane{
+  transition: 50ms;
+}
+
+td.fc-timegrid-slot.fc-timegrid-slot-lane:hover{
+  box-shadow: 0px 5px 8px -8px #000000;
+}
