@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-import { React } from 'react'
+import React from 'react'
 import FullCalendar, { formatDate } from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -8,8 +8,8 @@ import { INITIAL_EVENTS, createEventId } from './event-utils'
 // import moment from 'moment'
 import heLocale from '@fullcalendar/core/locales/he';
 
-var db = require('./api/server')
-db.postReq(db.newUser("0502240010", true))
+// var db = require('./api/server')
+// db.postReq(db.newUser("0502240010", true))
 
 class User{
   blocked;
@@ -24,6 +24,15 @@ class User{
   block(){ this.blocked = true; console.log("נחסם") }
   unblock(){ this.blocked = false; console.log("בוטלה החסימה")}
 }
+
+let date1 = new Date(2022, 0, 5);
+let date2 = new Date(2022, 0, 6);
+let date3 = new Date(2022, 0, 7);
+
+let days = [date1, date2, date3] 
+let allowedDays = days.map(date => date.setHours(0, 0, 0, 0))
+
+console.log(allowedDays)
 
 let adminUser = new User("0502240010", false, true)
 
@@ -62,7 +71,7 @@ export default class App extends React.Component {
       startTime: '08:00', endTime: '18:00'
     },
     slotDuration: {minutes:30},
-    isLoggedIn: false,
+    isLoggedIn: true,
     adminState: false,
     currentUser: {}
   }
@@ -103,15 +112,17 @@ export default class App extends React.Component {
         alert('נא להכניס מספר טלפון תקין!')
         this.handleLogin()
       }
+      console.log(this.state.currentUser)
     }
     else {return {}}
-    console.log(this.state.currentUser)
   }
   
+
+
   render() {
-    
+    this.handleLogin()
     return(
-      <div className='app' onLoad={this.handleLogin()}>
+      <div className='app'>
         
         <div className='calendar'>
           {this.renderCalendar()}
@@ -156,6 +167,8 @@ export default class App extends React.Component {
                 }
               }
             }}
+
+            selectConstraint={this.state.businessHours}
             initialView='timeGridWeek'
             editable={true}
             businessHours={this.state.businessHours}
@@ -207,20 +220,26 @@ export default class App extends React.Component {
   }
 
   handleDateSelect = (selectInfo) => {
-    let current_state = this.state
-    let calendarApi = selectInfo.view.calendar
-    calendarApi.unselect() // clear date selection
-    let name = prompt('נא להכניס שם מלא')
-     
+    if (allowedDays.includes(selectInfo.start.setHours(0, 0, 0, 0))){
+      let current_state = this.state
+      let calendarApi = selectInfo.view.calendar
+      calendarApi.unselect() // clear date selection
+      let name = prompt('נא להכניס שם מלא')
+       
+  
+      if (name) {
+        calendarApi.addEvent({
+          extendedProps: {name: name},
+          id: createEventId(),
+          title: prompt('הערות?'),
+          start: selectInfo.startStr,
+          end: selectInfo.startStr + current_state.slotDuration
+        })
+      }
 
-    if (name) {
-      calendarApi.addEvent({
-        extendedProps: {name: name},
-        id: createEventId(),
-        title: prompt('הערות?'),
-        start: selectInfo.startStr,
-        end: selectInfo.startStr + current_state.slotDuration
-      })
+    }
+    else{
+      selectInfo.view.calendar.unselect()
     }
   }
 
