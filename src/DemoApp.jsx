@@ -1,15 +1,25 @@
 /* eslint-disable no-restricted-globals */
-import React from 'react'
+import React from "react";
 import FullCalendar, { formatDate } from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import { INITIAL_EVENTS, createEventId } from './event-utils'
+import { createEventId } from './event-utils'
 // import moment from 'moment'
 import heLocale from '@fullcalendar/core/locales/he';
+import axios from 'axios'
+// const { MongoClient, ServerApiVersion } = require('mongodb');
 
-// var db = require('./api/server')
-// db.postReq(db.newUser("0502240010", true))
+
+
+// const uri = "mongodb+srv://Yonatan:Z1x2c3v4y@calendar.x0xgfz3.mongodb.net/?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+// client.connect(err => {
+//   const collection = client.db("calendar").collection("events");
+//   collection.find()
+//   client.close();
+// });
+
 
 class User{
   blocked;
@@ -25,24 +35,24 @@ class User{
   unblock(){ this.blocked = false; console.log("בוטלה החסימה")}
 }
 
-let date1 = new Date(2022, 0, 5);
-let date2 = new Date(2022, 0, 6);
-let date3 = new Date(2022, 0, 7);
+let date1 = new Date(2022, 8, 5);
+let date2 = new Date(2022, 8, 6);
+let date3 = new Date(2022, 8, 7);
+let date4 = new Date(2022, 8, 9);
+let date5 = new Date(2022, 8, 21);
+let date6 = new Date(2022, 8, 10);
 
-let days = [date1, date2, date3] 
+let days = [date1, date2, date3, date4, date5, date6] 
 let allowedDays = days.map(date => date.setHours(0, 0, 0, 0))
-
-console.log(allowedDays)
 
 let adminUser = new User("0502240010", false, true)
 
-// let users = [adminUser]
 const phoneRegex = new RegExp('^05[0-9]-?[0-9]{7}$')
 
 
 var genColor = () => {
   let hue = 360 * Math.random()
-  let stauration = 25 + 70 * Math.random()
+  let stauration = 25 + 50 * Math.random()
   let lightness = 78 + 4 * Math.random()
 
   let color = "hsl(" + hue + ',' +
@@ -61,9 +71,7 @@ var genColor = () => {
 
 genColor()
 
-
 export default class App extends React.Component {
-
   state = {
     weekendsVisible: true,
     currentEvents: [],
@@ -73,8 +81,35 @@ export default class App extends React.Component {
     slotDuration: {minutes:30},
     isLoggedIn: true,
     adminState: false,
-    currentUser: {}
+    currentUser: {},
+    users: [],
+    events:[]
   }
+  
+  async getEvents(){
+    let headersList = {
+        "api-key": "0m9cDmNHPSCDagQnbbBdSXoMOW0rwLoTwBUr9ViWtgaX2hJ0pQkIo3NveHNpC7zZ",
+        "Content-Type": "application/json" 
+        }
+    
+        let bodyContent = JSON.stringify({
+            "dataSource": "calendar",
+            "database": "calendar",
+            "collection": "events"
+        });
+    
+        let reqOptions = {
+        url: "https://data.mongodb-api.com/app/data-cxmmn/endpoint/data/v1/action/find",
+        method: "POST",
+        headers: headersList,
+        data: bodyContent,
+        }
+    
+        let response = await axios.request(reqOptions);
+        this.setState({events: response.data.documents}) 
+}
+
+  
   
   adminTheme(){
     var r = document.querySelector(':root');
@@ -93,7 +128,8 @@ export default class App extends React.Component {
 
   
   handleLogin() {
-    console.log(this.state.isLoggedIn)
+    
+    // console.log(this.state.isLoggedIn)
     if (this.state.isLoggedIn === false){
       let loginPhone = prompt('מה מספר הטלפון שלך?').replace("-", "")
       if (phoneRegex.test(loginPhone) === true){
@@ -104,6 +140,7 @@ export default class App extends React.Component {
         }
         this.setState({ isLoggedIn: true })
         let loggingUser = new User(loginPhone, false, false)
+        console.log(loggingUser)
         
         this.setState({ currentUser: loggingUser })
         
@@ -112,7 +149,7 @@ export default class App extends React.Component {
         alert('נא להכניס מספר טלפון תקין!')
         this.handleLogin()
       }
-      console.log(this.state.currentUser)
+      // console.log(this.state.currentUser)
     }
     else {return {}}
   }
@@ -120,6 +157,7 @@ export default class App extends React.Component {
 
 
   render() {
+    this.getEvents()
     this.handleLogin()
     return(
       <div className='app'>
@@ -168,10 +206,10 @@ export default class App extends React.Component {
               }
             }}
 
-            selectConstraint={this.state.businessHours}
+            // selectConstraint={this.state.businessHours}
             initialView='timeGridWeek'
             editable={true}
-            businessHours={this.state.businessHours}
+            // businessHours={this.state.businessHours}
             nowIndicator={true}
             allDaySlot={false}
             titleFormat={{ year: 'numeric', month: 'long' , day: 'numeric'}}
@@ -179,7 +217,7 @@ export default class App extends React.Component {
             selectable={true}
             slotDuration={this.state.slotDuration}
             defaultTimedEventDuration={this.state.slotDuration}
-            scrollTime={this.state.businessHours.startTime}
+            // scrollTime={this.state.businessHours.startTime}
             locale={heLocale}
             selectMirror={true}
             dayMaxEvents={true}
@@ -187,10 +225,9 @@ export default class App extends React.Component {
             eventStartEditable={false}
             forceEventDuration={true}
             eventBorderColor={"transparent"}
-            eventConstraint={this.state.businessHours}
-            weekends={this.state.weekendsVisible}
+            // eventConstraint={this.state.businessHours}
             displayEventTime={false}
-            initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
+            events={this.state.events} // alternatively, use the `events` setting to fetch from a feed
             select={this.handleDateSelect}
             eventContent={renderEventContent} // custom render function
             eventClick={this.handleEventClick}

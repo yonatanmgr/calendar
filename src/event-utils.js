@@ -31,6 +31,18 @@ export const INITIAL_EVENTS = [
     title: 'אירועשדגב',
     name: 'שקד',
     start: todayStr + 'T22:00:00'
+  },
+  {
+    groupId: 'testGroupId',
+    start: '2022-09-10T10:00:00',
+    end: '2022-09-10T16:00:00',
+    display: 'inverse-background'
+  },
+  {
+    groupId: 'testGroupId',
+    start: '2022-09-08T08:00:00',
+    end: '2022-09-08T16:00:00',
+    display: 'inverse-background'
   }
 ]
 
