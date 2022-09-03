@@ -1,7 +1,5 @@
 /* eslint-disable no-restricted-globals */
-import React from 'react'
-
-
+import { React } from 'react'
 import FullCalendar, { formatDate } from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -9,6 +7,9 @@ import interactionPlugin from '@fullcalendar/interaction'
 import { INITIAL_EVENTS, createEventId } from './event-utils'
 // import moment from 'moment'
 import heLocale from '@fullcalendar/core/locales/he';
+
+var db = require('./api/server')
+db.postReq(db.newUser("0502240010", true))
 
 class User{
   blocked;
@@ -51,7 +52,9 @@ var genColor = () => {
 
 genColor()
 
+
 export default class App extends React.Component {
+
   state = {
     weekendsVisible: true,
     currentEvents: [],
@@ -78,6 +81,8 @@ export default class App extends React.Component {
     }
   }
 
+
+  
   handleLogin() {
     console.log(this.state.isLoggedIn)
     if (this.state.isLoggedIn === false){
@@ -90,9 +95,9 @@ export default class App extends React.Component {
         }
         this.setState({ isLoggedIn: true })
         let loggingUser = new User(loginPhone, false, false)
-
+        
         this.setState({ currentUser: loggingUser })
-
+        
       }
       else{
         alert('נא להכניס מספר טלפון תקין!')
@@ -102,10 +107,12 @@ export default class App extends React.Component {
     else {return {}}
     console.log(this.state.currentUser)
   }
-
+  
   render() {
+    
     return(
-      <div className='app' onLoadStart={() => this.handleLogin()}>
+      <div className='app' onLoad={this.handleLogin()}>
+        
         <div className='calendar'>
           {this.renderCalendar()}
         </div>
@@ -118,6 +125,7 @@ export default class App extends React.Component {
   }
 
   renderCalendar(){
+    
     return (
           <FullCalendar
             plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
