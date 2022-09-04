@@ -8,17 +8,7 @@ import { createEventId } from './event-utils'
 // import moment from 'moment'
 import heLocale from '@fullcalendar/core/locales/he';
 import axios from 'axios'
-// const { MongoClient, ServerApiVersion } = require('mongodb');
 
-
-
-// const uri = "mongodb+srv://Yonatan:Z1x2c3v4y@calendar.x0xgfz3.mongodb.net/?retryWrites=true&w=majority";
-// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-// client.connect(err => {
-//   const collection = client.db("calendar").collection("events");
-//   collection.find()
-//   client.close();
-// });
 
 
 class User{
@@ -83,33 +73,12 @@ export default class App extends React.Component {
     adminState: false,
     currentUser: {},
     users: [],
-    events:[]
+    // events: []
   }
-  
-  async getEvents(){
-    let headersList = {
-        "api-key": "0m9cDmNHPSCDagQnbbBdSXoMOW0rwLoTwBUr9ViWtgaX2hJ0pQkIo3NveHNpC7zZ",
-        "Content-Type": "application/json" 
-        }
-    
-        let bodyContent = JSON.stringify({
-            "dataSource": "calendar",
-            "database": "calendar",
-            "collection": "events"
-        });
-    
-        let reqOptions = {
-        url: "https://data.mongodb-api.com/app/data-cxmmn/endpoint/data/v1/action/find",
-        method: "POST",
-        headers: headersList,
-        data: bodyContent,
-        }
-    
-        let response = await axios.request(reqOptions);
-        this.setState({events: response.data.documents}) 
-}
 
-  
+  async addEvent(info){
+
+  }
   
   adminTheme(){
     var r = document.querySelector(':root');
@@ -155,9 +124,9 @@ export default class App extends React.Component {
   }
   
 
+  
 
   render() {
-    this.getEvents()
     this.handleLogin()
     return(
       <div className='app'>
@@ -221,6 +190,7 @@ export default class App extends React.Component {
             locale={heLocale}
             selectMirror={true}
             dayMaxEvents={true}
+            eventSources={['http://localhost:3001/events']}
             eventDurationEditable={false}
             eventStartEditable={false}
             forceEventDuration={true}
@@ -233,9 +203,31 @@ export default class App extends React.Component {
             eventClick={this.handleEventClick}
             eventsSet={this.handleEvents} // called after events are initialized/added/changed/removed
             
-            eventAdd={function(){console.log("add")}}
+            eventAdd={
+              async function (addInfo) {
+                await axios.request({
+                  url: "http://localhost:3001/events",
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  data: JSON.stringify(addInfo.event),
+                });
+              }
+            }
             eventChange={function(){}}
-            eventRemove={function(){}}
+            eventRemove={
+              async function (removeInfo) {
+                await axios.request({
+                  url: "http://localhost:3001/events",
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  data: JSON.stringify(removeInfo.event),
+                });
+              }
+            }
           />
       )
   }

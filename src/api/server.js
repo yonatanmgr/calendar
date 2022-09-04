@@ -1,100 +1,56 @@
 const express = require('express')
+const cors = require("cors")
+const bodyParser = require("body-parser");
+
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express()
 const port = 3001
-const cors = require("cors")
 
+app.use(cors({origin: '*'}));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-async function api(){
+app.listen(port) 
 
+const uri = "mongodb+srv://Yonatan:Z1x2c3v4y@calendar.x0xgfz3.mongodb.net/?retryWrites=true&w=majority";
 
-    
-    const headersList = new Headers();
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-    headersList.append("Accept", "*/*")
-    headersList.append("Content-Type", "application/json")
-    headersList.append("api-key", "0m9cDmNHPSCDagQnbbBdSXoMOW0rwLoTwBUr9ViWtgaX2hJ0pQkIo3NveHNpC7zZ")
-    headersList.append("Access-Control-Allow-Credentials", "true")
-    headersList.append("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-    headersList.append("Access-Control-Allow-Headers", "Origin, Content-Type, Accept")
+client.connect().then(
+    client => {
+        const eventCollection = client.db("calendar").collection("events")
+        const userCollection = client.db("calendar").collection("users")
 
+        app.get('/events', (req, res) => {
+            eventCollection.find().toArray()
+            .then(results => {
+                res.send(results)
+            })
+            .catch(error => console.error(error))
+        })
 
-    let bodyContent = JSON.stringify({
-        "dataSource": "calendar",
-        "database": "calendar",
-        "collection": "events"
-    });
+        app.post('/events', (req, res) => {
+            eventCollection.insertOne(req.body, function(err, result){
+                if (err) throw err
+                res.json(result);
+            })
+        })
 
-    const myInit = {
-        method: 'POST',
-        headers: headersList,
-        body: bodyContent,
-        mode: 'cors',
-        cache: 'default'
-    };
+        app.delete('/events', (req, res) => {
+            eventCollection.deleteOne(eventCollection.findOne(req.body), function(err, result){
+                if (err) throw err
+                res.json(result);
+            })
+        })
+        
+        app.get('/users', (req, res) => {
+            userCollection.find().toArray()
+            .then(results => {
+                res.send(results)
+            })
+            .catch(error => console.error(error))
+        })
+    }
+).catch(console.error)
 
-    const myRequest = new Request('https://data.mongodb-api.com/app/data-cxmmn/endpoint/data/v1/action/find', myInit);
-
-    const result = await fetch(myRequest).then((response) => {return response.json()});
-
-    app.use(cors({origin: '*'}));
-
-    app.get('/', (req, res) => {res.send(result)})
-    app.listen(port, () => {
-        console.log(`Example app listening on port ${port}`)
-      })
-    } 
-
-api()
-
-// function newUser(phoneInput, adminInput) {
-//     return JSON.stringify({
-//         "collection": "users",
-//         "database": "calendar",
-//         "dataSource": "calendar",
-//         "document": {
-//             "phone": phoneInput,
-//             "isAdmin": adminInput,
-//             "blocked": false
-//         }
-//     })
-// }
-
-// function newEvent(startInput, nameInput, noteInput="") {
-//     return JSON.stringify({
-//         "collection": "events",
-//         "database": "calendar",
-//         "dataSource": "calendar",
-//         "document": {
-//             "start": startInput,
-//             "name": nameInput,
-//             "note": noteInput
-//         }
-//     })
-// }
-
-// function postReq(data){
-//     var config = {
-//         method: 'post',
-//         url: 'https://data.mongodb-api.com/app/data-cxmmn/endpoint/data/v1/action/insertOne',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Access-Control-Request-Headers': '*',
-//             'api-key': '0m9cDmNHPSCDagQnbbBdSXoMOW0rwLoTwBUr9ViWtgaX2hJ0pQkIo3NveHNpC7zZ',
-//         },
-//         data: data
-//     };
-    
-//     axios(config)
-//         .then(function (response) {
-//             console.log(JSON.stringify(response.data));
-//         })
-//         .catch(function (error) {
-//             console.log(error);
-//         });
-// }
-
-// exports.newUser = newUser
-// exports.newEvent = newEvent
-// exports.postReq = postReq
-
-
+client.close();
