@@ -41,7 +41,6 @@ ul {
 }
 
 .eventCard{
-  background-color: var(--user-color);
   border-radius: 12px;
   padding: 3px;
   margin-bottom: 12px;
@@ -109,7 +108,6 @@ b { /* used for event dates/times */
 }
 
 
-
 .eventList {
   line-height: 1.5;
   overflow-y: auto;
@@ -155,7 +153,6 @@ b { /* used for event dates/times */
 }
 
 .fc-timegrid-event{
-  background-color: var(--user-color) !important;
   transition: 300ms;
   
 }
@@ -167,18 +164,18 @@ b { /* used for event dates/times */
 .fc-button{
   background-color: var(--user-color) !important;
   border: none !important;
+  color: black !important;
+
   transition: ease 200ms;
 }
 
 .fc-button.fc-user-button{
   border-radius: 40px !important;
-  color: black !important;
   background-color: var(--user-state) !important;
   
 }
 .fc-button.fc-admin-button{
   border-radius: 40px !important;
-  color: black !important;
   background-color: var(--admin-state) !important;
   
 }

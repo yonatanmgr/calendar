@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require("cors")
 const bodyParser = require("body-parser");
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = 3001
 
@@ -37,10 +37,8 @@ client.connect().then(
         })
 
         app.delete('/events', (req, res) => {
-            eventCollection.deleteOne(eventCollection.findOne(req.body), function(err, result){
-                if (err) throw err
-                res.json(result);
-            })
+            eventCollection.deleteOne({"_id": ObjectId(req.body.extendedProps._id)})
+                .then(response => { res.send(response) })
         })
         
         app.get('/users', (req, res) => {
@@ -50,6 +48,49 @@ client.connect().then(
             })
             .catch(error => console.error(error))
         })
+
+        app.get('/users/:phone', (req, res) => {
+            userCollection.findOne(req.params)
+            .then(result => {
+                if(result != null) {res.send(result)}
+                else {res.send("none")}
+            })
+            .catch(error => console.error(error))
+        })
+
+        app.get('/users/:phone/events', (req, res) => {
+            eventCollection.find({"extendedProps.user.phone": req.params.phone}).toArray()
+            .then(result => {
+                if(result != null) {res.send(result)}
+                else {res.send([])}
+            })
+            .catch(error => console.error(error))
+        })
+
+        app.post('/users', (req, res) => {
+            userCollection.insertOne(req.body, function(err, insertRes){
+                if (err) throw err
+                userCollection.findOne(insertRes.insertedId).then(
+                    result => {
+                        console.log(result)
+                        res.send(result)
+                    })
+            })
+        })
+
+        app.put('/users/:phone', (req, res) => {
+            userCollection.findOneAndUpdate(req.params, {$set: req.body}).then(result =>{
+                res.json(result);
+            })
+        })
+
+        app.delete('/users', (req, res) => {
+            userCollection.deleteOne(userCollection.findOne(req.body), function(err, result){
+                if (err) throw err
+                res.json(result);
+            })
+        })
+        
     }
 ).catch(console.error)
 
