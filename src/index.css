@@ -112,7 +112,7 @@ b { /* used for event dates/times */
 .app {
   display: flex;
   height: 100%;
-  font-family: 'Rubik', "Calibri", "Arial";
+  font-family: Rubik;
 }
 
 .sidebar{
