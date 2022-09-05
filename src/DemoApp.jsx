@@ -537,29 +537,30 @@ function renderEventContent(eventInfo) {
 }
 
 function renderSidebarEvent(event) {
-  if (event.title === "" && event.groupId !== "workDay"){
-    return (
+  if (event.groupId !== "workDay"){
+    if (event.title === ""){
+      return (
+        <div key={event.id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+          <div className="cardContent">
+          <p>
+            <b>{event.extendedProps.name} / </b>
+            <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric', minute:'numeric'})}</span>
+          </p>
+          </div>
+        </div>
+      )
+    }
+    else return (
       <div key={event.id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
         <div className="cardContent">
-        <p>
-          <b>{event.extendedProps.name} / </b>
-          <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric', minute:'numeric'})}</span>
-        </p>
+          <p>
+            <b>{event.extendedProps.name} / </b>
+            <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric',
+              minute:'numeric'})}</span>
+          </p>
+          <p>הערה:<b>{event.title}</b></p>
         </div>
       </div>
     )
   }
-  else if(event.groupId !== "workDay"){ return (
-    <div key={event.id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
-      <div className="cardContent">
-        <p>
-          <b>{event.extendedProps.name} / </b>
-          <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric',
-            minute:'numeric'})}</span>
-        </p>
-        <p>הערה:<b>{event.title}</b></p>
-      </div>
-    </div>
-  )
-}
 }
