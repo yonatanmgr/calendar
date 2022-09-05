@@ -520,7 +520,7 @@ export default class App extends React.Component {
 
   handleEvents = (events) => {
     this.setState({
-      currentEvents: Array.from(new Set(evemts));
+      currentEvents: Array.from(new Set(events))
     })
   }
 
