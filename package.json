@@ -40,7 +40,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "heroku-postbuild": "./src/api/server.js"
+    "heroku-postbuild": "node ./src/api/server.js"
   },
   "eslintConfig": {
     "extends": [
