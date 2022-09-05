@@ -126,14 +126,14 @@ export default class App extends React.Component {
         let loggingUser = new User(loginPhone.replace("-", ""))
 
         await axios.request({
-          url: `http://localhost:3001/users/${loggingUser.phone}`,
+          url: `https://yon-calendar-back.herokuapp.com/users/${loggingUser.phone}`,
           method: "GET",
           headers: {"Content-Type": "application/json"}
         })
         .then(async res => {
           if (res.data == "none"){
             await axios.request({
-              url: "http://localhost:3001/users",
+              url: "https://yon-calendar-back.herokuapp.com/users",
               method: "POST",
               headers: {"Content-Type": "application/json"},
               data: JSON.stringify(loggingUser)
@@ -222,7 +222,7 @@ export default class App extends React.Component {
         locale={heLocale}
         selectMirror={true}
         dayMaxEvents={true}
-        eventSources={[`http://localhost:3001/users/${this.state.currentUser.phone}/events`, `http://localhost:3001/openEvents`]}
+        eventSources={[`https://yon-calendar-back.herokuapp.com/users/${this.state.currentUser.phone}/events`, `https://yon-calendar-back.herokuapp.com/openEvents`]}
         eventDurationEditable={false}
         eventStartEditable={false}
         forceEventDuration={true}
@@ -238,7 +238,7 @@ export default class App extends React.Component {
         eventAdd={
           async function (addInfo) {
             await axios.request({
-              url: "http://localhost:3001/events",
+              url: "https://yon-calendar-back.herokuapp.com/events",
               method: "POST",
               headers: {"Content-Type": "application/json"},
               data: JSON.stringify(addInfo.event),
@@ -249,7 +249,7 @@ export default class App extends React.Component {
         eventRemove={
           async function (removeInfo) {
             await axios.request({
-              url: "http://localhost:3001/events",
+              url: "https://yon-calendar-back.herokuapp.com/events",
               method: "DELETE",
               headers: {"Content-Type": "application/json"},
               data: JSON.stringify(removeInfo.event),
@@ -290,7 +290,7 @@ export default class App extends React.Component {
             click: async () => {
               let blockedPhone = prompt("את מי תרצו לחסום?")
               await axios.request({
-                url: `http://localhost:3001/users/${blockedPhone}`,
+                url: `https://yon-calendar-back.herokuapp.com/users/${blockedPhone}`,
                 method: "GET",
                 headers: {"Content-Type": "application/json"}
               }).then(
@@ -299,7 +299,7 @@ export default class App extends React.Component {
                     let unBlockedPhone = prompt("כדי לבטל את חסימת המשתמש, נא כתבו את מספרו שנית")
                     if(unBlockedPhone==blockedPhone){
                       await axios.request({
-                        url: `http://localhost:3001/users/${blockedPhone}`,
+                        url: `https://yon-calendar-back.herokuapp.com/users/${blockedPhone}`,
                         method: "PUT",
                         headers: {"Content-Type": "application/json"},
                         params: {phone: unBlockedPhone},
@@ -311,7 +311,7 @@ export default class App extends React.Component {
                   }
                   else{
                     await axios.request({
-                      url: `http://localhost:3001/users/${blockedPhone}`,
+                      url: `https://yon-calendar-back.herokuapp.com/users/${blockedPhone}`,
                       method: "PUT",
                       headers: {"Content-Type": "application/json"},
                       params: {phone: blockedPhone},
@@ -347,7 +347,7 @@ export default class App extends React.Component {
         locale={heLocale}
         selectMirror={true}
         dayMaxEvents={true}
-        eventSources={['http://localhost:3001/events', 'http://localhost:3001/openEvents']}
+        eventSources={['https://yon-calendar-back.herokuapp.com/events', 'https://yon-calendar-back.herokuapp.com/openEvents']}
         eventDurationEditable={false}
         eventStartEditable={false}
         forceEventDuration={true}
@@ -365,7 +365,7 @@ export default class App extends React.Component {
         eventAdd={
           async function (addInfo) {
             await axios.request({
-              url: "http://localhost:3001/events",
+              url: "https://yon-calendar-back.herokuapp.com/events",
               method: "POST",
               headers: {"Content-Type": "application/json"},
               data: JSON.stringify(addInfo.event),
@@ -376,7 +376,7 @@ export default class App extends React.Component {
         eventRemove={
           async function (removeInfo) {
             await axios.request({
-              url: "http://localhost:3001/events",
+              url: "https://yon-calendar-back.herokuapp.com/events",
               method: "DELETE",
               headers: {"Content-Type": "application/json"},
               data: JSON.stringify(removeInfo.event),
@@ -423,7 +423,7 @@ export default class App extends React.Component {
         let dayEnd = new Date(slot.startTime.setHours(26, 59, 59, 0))
 
         let slotInDay = await axios.request({
-          url: "http://localhost:3001/slotInDay",
+          url: "https://yon-calendar-back.herokuapp.com/slotInDay",
           method: "POST",
           headers: {"Content-Type": "application/json"},
           data: JSON.stringify({groupId: "workDay", start: {"$gte": dayStart, "$lt": dayEnd}})
@@ -439,7 +439,7 @@ export default class App extends React.Component {
 
 
         // let getSlot = await axios.request({
-        //   url: `http://localhost:3001/slots/${slot.startTime}`,
+        //   url: `https://yon-calendar-back.herokuapp.com/slots/${slot.startTime}`,
         //   method: "GET",
         //   headers: {"Content-Type": "application/json"},
         //   params: {startTime: slot.startTime}
@@ -459,7 +459,7 @@ export default class App extends React.Component {
 
       
       // let filledSlot = await axios.request({
-      //   url: `http://localhost:3001/slots/${slot.startTime}`,
+      //   url: `https://yon-calendar-back.herokuapp.com/slots/${slot.startTime}`,
       //   method: "POST",
       //   headers: {"Content-Type": "application/json"},
       //   params: {startTime: slot.startTime},
