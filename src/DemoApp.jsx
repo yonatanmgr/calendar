@@ -416,7 +416,6 @@ export default class App extends React.Component {
       // if (allowedDays.includes(selectInfo.start.setHours(0, 0, 0, 0))){
         let current_state = this.state
         let calendarApi = selectInfo.view.calendar
-        calendarApi.unselect()
 
         
         let slot = new Slot(selectInfo.start)
@@ -439,12 +438,14 @@ export default class App extends React.Component {
         let title = prompt('הערות?')
 
 
-        let getSlot = await axios.request({
-          url: `http://localhost:3001/slots/${slot.startTime}`,
-          method: "GET",
-          headers: {"Content-Type": "application/json"},
-          params: {startTime: slot.startTime}
-        })
+        // let getSlot = await axios.request({
+        //   url: `http://localhost:3001/slots/${slot.startTime}`,
+        //   method: "GET",
+        //   headers: {"Content-Type": "application/json"},
+        //   params: {startTime: slot.startTime}
+        // })
+
+        // console.log(getSlot.data)
       
         let eventJson = {
           extendedProps: {name: name, user: current_state.currentUser},
@@ -457,25 +458,26 @@ export default class App extends React.Component {
       }
 
       
+      // let filledSlot = await axios.request({
+      //   url: `http://localhost:3001/slots/${slot.startTime}`,
+      //   method: "POST",
+      //   headers: {"Content-Type": "application/json"},
+      //   params: {startTime: slot.startTime},
+      //   body: JSON.stringify(slot)
+      // })
 
-      let filledSlot = await axios.request({
-        url: `http://localhost:3001/slots/${slot.startTime}`,
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        params: {startTime: slot.startTime},
-        body: JSON.stringify(slot)
-      })
+      // if (filledSlot.events.length < filledSlot.workers){
+      //   slot.events.push(eventJson)
+        if (name) {
+          calendarApi.addEvent(eventJson)
+        }
+        calendarApi.unselect()
 
-        if (filledSlot.events.length < filledSlot.workers){
-          slot.events.push(eventJson)
-          if (name) {
-            calendarApi.addEvent(eventJson)
-          }
-        }
-        }
-        if (filledSlot.events.length == filledSlot.workers){
-          alert("לא ניתן ליצור אירועים נוספים במשבצת זו")
-        }
+      // }
+      // if (filledSlot.events.length == filledSlot.workers){
+      //   alert("לא ניתן ליצור אירועים נוספים במשבצת זו")
+      // }
+      }
         
 
 

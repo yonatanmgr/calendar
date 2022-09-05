@@ -38,8 +38,8 @@ client.connect().then(
             .catch(error => console.error(error))
         })
 
-        app.post('/slots', (req, res) => {
-            slotCollection.insertOne(req.body)
+        app.get('/slots/:startTime', (req, res) => {
+            slotCollection.findOne(req.params)
             .then(results => {
                 res.send(results)
             })
@@ -47,13 +47,14 @@ client.connect().then(
         })
 
         app.post('/slots/:startTime', (req, res) => {
-            console.log(req.body);
-            console.log(req.params);
-            slotCollection.findOneAndUpdate({"startTime": req.params}, {$set: req.body}, {upsert: true})
-            .then(results => {
-                res.send(results)
+            slotCollection.findOne(req.params, function(err, result){
+                if (result == {}){
+                    slotCollection.insertOne(req.body)
+                }
+                else{
+                    slotCollection.updateOne(result, {$set: req.body})
+                }
             })
-            .catch(error => console.error(error))
         })
 
         app.post('/slotInDay', (req, res) => {
