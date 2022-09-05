@@ -36,39 +36,29 @@ class User{
     this.blocked = blocked;
     this.admin = admin;
   }
-
-  block(){ this.blocked = true; console.log("נחסם") }
-  unblock(){ this.blocked = false; console.log("בוטלה החסימה")}
 }
 
-class WorkDay{
-  constructor(date, startTime, endTime, workers, slots=[]){
-    this.date = date;
-    this.startTime = startTime;
-    this.endTime = endTime;
-    this.workers = workers;
-    this.slots = slots;
-  }
+// class WorkDay{
+//   constructor(date, startTime, endTime, workers, slots=[]){
+//     this.date = date;
+//     this.startTime = startTime;
+//     this.endTime = endTime;
+//     this.workers = workers;
+//     this.slots = slots;
+//   }
 
-  clearSlots(){
-    this.slots = []
+//   clearSlots(){
+//     this.slots = []
+//   }
+// }
+
+class Slot{
+  events=[];
+  workers=0;
+  constructor(startTime){
+    this.startTime = startTime
   }
 }
-
-
-
-
-let date1 = new Date(2022, 8, 5);
-let date2 = new Date(2022, 8, 6);
-let date3 = new Date(2022, 8, 7);
-let date4 = new Date(2022, 8, 9);
-let date5 = new Date(2022, 8, 21);
-let date6 = new Date(2022, 8, 10);
-
-let days = [date1, date2, date3, date4, date5, date6] 
-let allowedDays = days.map(date => date.setHours(0, 0, 0, 0))
-
-let adminUser = new User("0502240010", false, true)
 
 const phoneRegex = new RegExp('^05[0-9]-?[0-9]{7}$')
 
@@ -93,15 +83,16 @@ export default class App extends React.Component {
     // eventId: 0,
     weekendsVisible: true,
     currentEvents: [],
-    businessHours: {
-      startTime: '08:00', endTime: '18:00'
-    },
     slotDuration: {minutes:30},
     isLoggedIn: false,
     adminState: false,
     currentUser: "",
     signUp: true,
     users: [],
+    selectMode: null,
+    newDayText: 'יום חדש להרשמה ✏️',
+    selectConstraint: 'workDay',
+    selectOverlap: (event)=>{ return event.groupId == 'workDay'}
   }
 
   componentDidMount() {
@@ -109,6 +100,7 @@ export default class App extends React.Component {
   }
 
   handleLoad() {
+    this.setState({selectMode: this.handleDateSelect})
     this.handleLogin() 
   }
 
@@ -230,12 +222,12 @@ export default class App extends React.Component {
         locale={heLocale}
         selectMirror={true}
         dayMaxEvents={true}
-        eventSources={[`http://localhost:3001/users/${this.state.currentUser.phone}/events`]}
+        eventSources={[`http://localhost:3001/users/${this.state.currentUser.phone}/events`, `http://localhost:3001/openEvents`]}
         eventDurationEditable={false}
         eventStartEditable={false}
         forceEventDuration={true}
         eventBorderColor={"transparent"}
-        // eventConstraint={this.state.businessHours}
+        selectConstraint={this.state.selectConstraint}
         displayEventTime={false}
         events={this.state.events} // alternatively, use the `events` setting to fetch from a feed
         select={this.handleDateSelect}
@@ -278,8 +270,10 @@ export default class App extends React.Component {
           user: {
               text: 'משתמש 🙂',
               click: () => {
+              
                 this.adminTheme()
                 this.setState({
+                  selectMode: this.handleDateSelect,
                   adminState: false
                 })
               }
@@ -331,9 +325,9 @@ export default class App extends React.Component {
             }
           },
           newDay: {
-            text: 'יום חדש להרשמה ✏️',
+            text: this.state.newDayText,
             click: () => {
-
+              this.setState({selectMode: this.handleNewWorkDay, newDayText: "בתהליכים...", selectOverlap: (event)=>{ return event.groupId != 'workDay'}})
             }
           }
         }}
@@ -353,15 +347,17 @@ export default class App extends React.Component {
         locale={heLocale}
         selectMirror={true}
         dayMaxEvents={true}
-        eventSources={['http://localhost:3001/events']}
+        eventSources={['http://localhost:3001/events', 'http://localhost:3001/openEvents']}
         eventDurationEditable={false}
         eventStartEditable={false}
         forceEventDuration={true}
         eventBorderColor={"transparent"}
-        // eventConstraint={this.state.businessHours}
+        // selectConstraint={this.state.selectConstraint}
+        selectOverlap={this.state.selectOverlap}
+        
         displayEventTime={false}
         events={this.state.events} // alternatively, use the `events` setting to fetch from a feed
-        select={this.handleDateSelect}
+        select={this.state.selectMode}
         eventContent={renderEventContent} // custom render function
         eventClick={this.handleEventClick}
         eventsSet={this.handleEvents} // called after events are initialized/added/changed/removed
@@ -395,14 +391,14 @@ export default class App extends React.Component {
     if (this.state.adminState){
       return (
         <div dir='rtl' className='actions'>
-          <h1>📆 כל האירועים <span class='counter'> {this.state.currentEvents.length} </span></h1>
+          <h1>📆 כל האירועים <span class='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
         </div>
       )  
     }
     else{
       return (
         <div dir='rtl' className='actions'>
-          <h1>📆 האירועים שלי  <span class='counter'> {this.state.currentEvents.length} </span></h1>
+          <h1>📆 האירועים שלי  <span class='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
         </div>
       )
   }}
@@ -415,37 +411,82 @@ export default class App extends React.Component {
     )
   }
 
-  handleDateSelect = (selectInfo) => {
+  handleDateSelect = async (selectInfo) => {
     if (!this.state.currentUser.blocked){
-      if (allowedDays.includes(selectInfo.start.setHours(0, 0, 0, 0))){
+      // if (allowedDays.includes(selectInfo.start.setHours(0, 0, 0, 0))){
         let current_state = this.state
         let calendarApi = selectInfo.view.calendar
         calendarApi.unselect()
 
+        
+        let slot = new Slot(selectInfo.start)
+        let dayStart = new Date(slot.startTime.setHours(3, 0, 0, 0))
+        let dayEnd = new Date(slot.startTime.setHours(26, 59, 59, 0))
+
+        let slotInDay = await axios.request({
+          url: "http://localhost:3001/slotInDay",
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          data: JSON.stringify({groupId: "workDay", start: {"$gte": dayStart, "$lt": dayEnd}})
+        })
+        
+        slot.startTime = selectInfo.startStr
+        slot.day = slotInDay.data._id;
+        slot.workers = slotInDay.data.extendedProps.workerNum;
+
+
         let name = prompt('נא להכניס שם מלא')
         let title = prompt('הערות?')
 
-        
-        if (name) {
-          calendarApi.addEvent({
-            extendedProps: {
-              name: name,
-              user: current_state.currentUser
-            },
-            backgroundColor: `rgb(${hsl2rgb(current_state.currentUser.userColor.hue, current_state.currentUser.userColor.stauration, current_state.currentUser.userColor.lightness)})`,
-            title: title,
-            start: selectInfo.startStr,
-            end: selectInfo.startStr + current_state.slotDuration
-          })
-        }
 
+        let getSlot = await axios.request({
+          url: `http://localhost:3001/slots/${slot.startTime}`,
+          method: "GET",
+          headers: {"Content-Type": "application/json"},
+          params: {startTime: slot.startTime}
+        })
+      
+        let eventJson = {
+          extendedProps: {name: name, user: current_state.currentUser},
+          backgroundColor: `rgb(${hsl2rgb(current_state.currentUser.userColor.hue, current_state.currentUser.userColor.stauration, current_state.currentUser.userColor.lightness)})`,
+          title: title,
+          start: selectInfo.startStr,
+          end: selectInfo.startStr + current_state.slotDuration,
+          editable: false,
+          groupId: 'event'
       }
-      else{
-        selectInfo.view.calendar.unselect(); alert("יום זה אינו פתוח להרשמה")
-      }
-    }
+
+      
+
+      let filledSlot = await axios.request({
+        url: `http://localhost:3001/slots/${slot.startTime}`,
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        params: {startTime: slot.startTime},
+        body: JSON.stringify(slot)
+      })
+
+        if (filledSlot.events.length < filledSlot.workers){
+          slot.events.push(eventJson)
+          if (name) {
+            calendarApi.addEvent(eventJson)
+          }
+        }
+        }
+        if (filledSlot.events.length == filledSlot.workers){
+          alert("לא ניתן ליצור אירועים נוספים במשבצת זו")
+        }
+        
+
+
+
+      // else{
+      //   selectInfo.view.calendar.unselect(); alert("יום זה אינו פתוח להרשמה")
+      // }
+    
     else{selectInfo.view.calendar.unselect(); alert("המשתמש חסום - אין באפשרותך להירשם לאירועים נוספים")}
   }
+
   handleNewWorkDay = (selectInfo) => {
     // let current_state = this.state
     let calendarApi = selectInfo.view.calendar
@@ -464,11 +505,14 @@ export default class App extends React.Component {
         display: 'inverse-background'
       })
     }
+    this.setState({selectMode: this.handleDateSelect, newDayText: 'יום חדש להרשמה ✏️', selectOverlap: (event)=>{ return event.groupId == 'workDay'}})
   }
 
   handleEventClick = (clickInfo) => {
-    if (confirm(`בטוחים שתרצו למחוק את האירוע '${clickInfo.event.title}'?`)) {
-      clickInfo.event.remove()
+    if (clickInfo.event.groupId !== "workDay"){
+      if (confirm(`בטוחים שתרצו למחוק את האירוע '${clickInfo.event.title}'?`)) {
+        clickInfo.event.remove()
+      }
     }
   }
 
@@ -491,7 +535,7 @@ function renderEventContent(eventInfo) {
 }
 
 function renderSidebarEvent(event) {
-  if (event.title === ""){
+  if (event.title === "" && event.groupId !== "workDay"){
     return (
       <div key={event.id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
         <div className="cardContent">
@@ -503,7 +547,7 @@ function renderSidebarEvent(event) {
       </div>
     )
   }
-  return (
+  else if(event.groupId !== "workDay"){ return (
     <div key={event.id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
       <div className="cardContent">
         <p>
@@ -516,4 +560,4 @@ function renderSidebarEvent(event) {
     </div>
   )
 }
-
+}

@@ -20,9 +20,52 @@ client.connect().then(
     client => {
         const eventCollection = client.db("calendar").collection("events")
         const userCollection = client.db("calendar").collection("users")
+        const slotCollection = client.db("calendar").collection("slots")
 
         app.get('/events', (req, res) => {
             eventCollection.find().toArray()
+            .then(results => {
+                res.send(results)
+            })
+            .catch(error => console.error(error))
+        })
+
+        app.get('/slots', (req, res) => {
+            slotCollection.find().toArray()
+            .then(results => {
+                res.send(results)
+            })
+            .catch(error => console.error(error))
+        })
+
+        app.post('/slots', (req, res) => {
+            slotCollection.insertOne(req.body)
+            .then(results => {
+                res.send(results)
+            })
+            .catch(error => console.error(error))
+        })
+
+        app.post('/slots/:startTime', (req, res) => {
+            console.log(req.body);
+            console.log(req.params);
+            slotCollection.findOneAndUpdate({"startTime": req.params}, {$set: req.body}, {upsert: true})
+            .then(results => {
+                res.send(results)
+            })
+            .catch(error => console.error(error))
+        })
+
+        app.post('/slotInDay', (req, res) => {
+            eventCollection.findOne(req.body)
+            .then(result => {
+                res.send(result)
+            })
+            .catch(error => console.error(error))
+        })
+
+        app.get('/openEvents', (req, res) => {
+            eventCollection.find({groupId: "workDay"}).toArray()
             .then(results => {
                 res.send(results)
             })
