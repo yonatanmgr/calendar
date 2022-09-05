@@ -529,7 +529,7 @@ export default class App extends React.Component {
 
 function renderEventContent(eventInfo) {
   return (
-    <div>
+    <div key={eventInfo.event._id}>
       <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
       <b>{eventInfo.event.title}</b>
     </div>
@@ -537,10 +537,11 @@ function renderEventContent(eventInfo) {
 }
 
 function renderSidebarEvent(event) {
+  
   if (event.groupId !== "workDay"){
     if (event.title === ""){
       return (
-        <div key={event.id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+        <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
           <div className="cardContent">
           <p>
             <b>{event.extendedProps.name} / </b>
@@ -551,7 +552,7 @@ function renderSidebarEvent(event) {
       )
     }
     else return (
-      <div key={event.id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+      <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
         <div className="cardContent">
           <p>
             <b>{event.extendedProps.name} / </b>
