@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-import React from "react";
+import React, {useCallback} from "react";
 import FullCalendar, { formatDate } from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -402,7 +402,7 @@ export default class App extends React.Component {
   }}
 
   renderSidebar() {
-    if (this.state.adminState){
+    useCallback(()=>{if (this.state.adminState){
       return (
         <div dir='rtl' className="eventList">
           {this.state.currentEvents.map(adminRenderSidebarEvent)}
@@ -413,7 +413,7 @@ export default class App extends React.Component {
       <div dir='rtl' className="eventList">
         {this.state.currentEvents.map(renderSidebarEvent)}
       </div>
-    )
+    )}, this.state.currentEvents)
   }
 
   handleDateSelect = async (selectInfo) => {
