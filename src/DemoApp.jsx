@@ -229,7 +229,7 @@ export default class App extends React.Component {
         displayEventTime={false}
         events={this.state.events} // alternatively, use the `events` setting to fetch from a feed
         select={this.handleDateSelect}
-        eventContent={renderEventContent} // custom render function
+        eventContent={this.renderEventContent} // custom render function
         eventClick={this.handleEventClick}
         eventsSet={this.handleEvents} // called after events are initialized/added/changed/removed
         
@@ -356,7 +356,7 @@ export default class App extends React.Component {
         displayEventTime={false}
         events={this.state.events} // alternatively, use the `events` setting to fetch from a feed
         select={this.state.selectMode}
-        eventContent={renderEventContent} // custom render function
+        eventContent={this.renderEventContent} // custom render function
         eventClick={this.handleEventClick}
         eventsSet={this.handleEvents} // called after events are initialized/added/changed/removed
         
@@ -522,10 +522,9 @@ export default class App extends React.Component {
     })
   }
 
-}
-
-
-function renderEventContent(eventInfo) {
+  
+  
+renderEventContent(eventInfo) {
   if (this.state.adminState){
     return (
       <div key={eventInfo.event._id}>
@@ -542,7 +541,7 @@ function renderEventContent(eventInfo) {
   )
 }
 
-function renderSidebarEvent(event) {
+renderSidebarEvent(event) {
   if (event.groupId !== "workDay"){
       if (!this.state.adminState){
         if (event.title === ""){
@@ -602,4 +601,6 @@ function renderSidebarEvent(event) {
       }
     
   }
+}
+
 }
