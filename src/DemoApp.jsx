@@ -356,7 +356,7 @@ export default class App extends React.Component {
         displayEventTime={false}
         events={this.state.events} // alternatively, use the `events` setting to fetch from a feed
         select={this.state.selectMode}
-        eventContent={this.renderEventContent} // custom render function
+        eventContent={this.adminRenderEventContent} // custom render function
         eventClick={this.handleEventClick}
         eventsSet={this.handleEvents} // called after events are initialized/added/changed/removed
         
@@ -402,7 +402,14 @@ export default class App extends React.Component {
   }}
 
   renderSidebar() {
-    return (
+    if (this.state.adminState){
+      return (
+        <div dir='rtl' className="eventList">
+          {this.state.currentEvents.map(this.adminRenderSidebarEvent)}
+        </div>
+      )
+    }
+    else return (
       <div dir='rtl' className="eventList">
         {this.state.currentEvents.map(this.renderSidebarEvent)}
       </div>
@@ -521,29 +528,30 @@ export default class App extends React.Component {
       currentEvents: events
     })
   }
-
+  
+}
   
   
-renderEventContent(eventInfo) {
-  if (this.state.adminState){
+function renderEventContent(eventInfo) {
+  return (
+      <div key={eventInfo.event._id}>
+        <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
+        <b>{eventInfo.event.title}</b>
+      </div>
+    )
+  }
+function adminRenderEventContent(eventInfo) {
     return (
       <div key={eventInfo.event._id}>
         <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
         <b>{eventInfo.event.extendedProps.name}</b>
       </div>
     )
-  }
-  else return (
-    <div key={eventInfo.event._id}>
-      <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
-      <b>{eventInfo.event.title}</b>
-    </div>
-  )
 }
 
-renderSidebarEvent(event) {
+
+function renderSidebarEvent(event) {
   if (event.groupId !== "workDay"){
-      if (!this.state.adminState){
         if (event.title === ""){
           return (
             <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
@@ -568,39 +576,40 @@ renderSidebarEvent(event) {
             </div>
           </div>
         )
-      }
-      else {
-        if (event.title === ""){
-          return (
-            <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
-              <div className="cardContent">
-              <p>
-                <b>{event.extendedProps.user.phone}</b>
-              </p>
-              <p>
-                <b>{event.extendedProps.name} / </b>
-                <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric', minute:'numeric'})}</span>
-              </p>
-              </div>
-            </div>
-          )
-        }
-        else return (
-          <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
-            <div className="cardContent">
-              <p><b>{event.extendedProps.user.phone}</b></p>
-              <p>
-                <b>{event.extendedProps.name} / </b>
-                <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric',
-                  minute:'numeric'})}</span>
-              </p>
-              <p>הערה:<b>{event.title}</b></p>
-            </div>
-          </div>
-        )
-      }
-    
+      
   }
 }
 
+function adminRenderSidebarEvent(event){
+  if (event.groupId !== "workDay"){
+
+    if (event.title === ""){
+      return (
+        <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+          <div className="cardContent">
+          <p>
+            <b>{event.extendedProps.user.phone}</b>
+          </p>
+          <p>
+            <b>{event.extendedProps.name} / </b>
+            <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric', minute:'numeric'})}</span>
+          </p>
+          </div>
+        </div>
+      )
+    }
+    else return (
+      <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+        <div className="cardContent">
+          <p><b>{event.extendedProps.user.phone}</b></p>
+          <p>
+            <b>{event.extendedProps.name} / </b>
+            <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric',
+              minute:'numeric'})}</span>
+          </p>
+          <p>הערה:<b>{event.title}</b></p>
+        </div>
+      </div>
+    )
+  }
 }
