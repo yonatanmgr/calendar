@@ -389,14 +389,14 @@ export default class App extends React.Component {
     if (this.state.adminState){
       return (
         <div dir='rtl' className='actions'>
-          <h1>📆 כל האירועים <span class='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
+          <h1>📆 כל האירועים <span className='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
         </div>
       )  
     }
     else{
       return (
         <div dir='rtl' className='actions'>
-          <h1>📆 האירועים שלי  <span class='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
+          <h1>📆 האירועים שלי  <span className='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
         </div>
       )
   }}
