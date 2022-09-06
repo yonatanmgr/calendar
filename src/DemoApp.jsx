@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-import React, {useCallback} from "react";
+import React from "react";
 import FullCalendar, { formatDate } from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -389,19 +389,20 @@ export default class App extends React.Component {
     if (this.state.adminState){
       return (
         <div dir='rtl' className='actions'>
-          <h1>📆 כל האירועים <span className='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
+          <h1>📆 כל האירועים <span class='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
         </div>
       )  
     }
     else{
       return (
         <div dir='rtl' className='actions'>
-          <h1>📆 האירועים שלי  <span className='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
+          <h1>📆 האירועים שלי  <span class='counter'> {this.state.currentEvents.filter(event=>event.groupId !== "workDay").length} </span></h1>
         </div>
       )
   }}
 
-  renderSidebar = useCallback(()=>{if (this.state.adminState){
+  renderSidebar() {
+    if (this.state.adminState){
       return (
         <div dir='rtl' className="eventList">
           {this.state.currentEvents.map(adminRenderSidebarEvent)}
@@ -412,8 +413,8 @@ export default class App extends React.Component {
       <div dir='rtl' className="eventList">
         {this.state.currentEvents.map(renderSidebarEvent)}
       </div>
-    )}, [this.state.currentEvents])
-  
+    )
+  }
 
   handleDateSelect = async (selectInfo) => {
     if (!this.state.currentUser.blocked){
