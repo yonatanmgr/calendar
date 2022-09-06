@@ -80,15 +80,13 @@ export default class App extends React.Component {
   }
 
   state = {
-    // eventId: 0,
     weekendsVisible: true,
     currentEvents: [],
     slotDuration: {minutes:30},
     isLoggedIn: false,
     adminState: false,
-    currentUser: "",
+    currentUser: {},
     signUp: true,
-    users: [],
     selectMode: null,
     newDayText: 'יום חדש להרשמה ✏️',
     selectConstraint: 'workDay',
@@ -418,20 +416,20 @@ export default class App extends React.Component {
         let calendarApi = selectInfo.view.calendar
 
         
-        let slot = new Slot(selectInfo.start)
-        let dayStart = new Date(slot.startTime.setHours(3, 0, 0, 0))
-        let dayEnd = new Date(slot.startTime.setHours(26, 59, 59, 0))
+        // let slot = new Slot(selectInfo.start)
+        // let dayStart = new Date(slot.startTime.setHours(3, 0, 0, 0))
+        // let dayEnd = new Date(slot.startTime.setHours(26, 59, 59, 0))
 
-        let slotInDay = await axios.request({
-          url: "https://yon-calendar-back.herokuapp.com/slotInDay",
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          data: JSON.stringify({groupId: "workDay", start: {"$gte": dayStart, "$lt": dayEnd}})
-        })
+        // let slotInDay = await axios.request({
+        //   url: "https://yon-calendar-back.herokuapp.com/slotInDay",
+        //   method: "POST",
+        //   headers: {"Content-Type": "application/json"},
+        //   data: JSON.stringify({groupId: "workDay", start: {"$gte": dayStart, "$lt": dayEnd}})
+        // })
         
-        slot.startTime = selectInfo.startStr
-        slot.day = slotInDay.data._id;
-        slot.workers = slotInDay.data.extendedProps.workerNum;
+        // slot.startTime = selectInfo.startStr
+        // slot.day = slotInDay.data._id;
+        // slot.workers = slotInDay.data.extendedProps.workerNum;
 
 
         let name = prompt('נא להכניס שם מלא')
@@ -492,8 +490,7 @@ export default class App extends React.Component {
   handleNewWorkDay = (selectInfo) => {
     // let current_state = this.state
     let calendarApi = selectInfo.view.calendar
-    calendarApi.unselect()
-
+    
     let workers = prompt('מהו מספר העובדים?')
     
     if (workers) {
@@ -507,11 +504,12 @@ export default class App extends React.Component {
         display: 'inverse-background'
       })
     }
+    calendarApi.unselect()
     this.setState({selectMode: this.handleDateSelect, newDayText: 'יום חדש להרשמה ✏️', selectOverlap: (event)=>{ return event.groupId == 'workDay'}})
   }
 
   handleEventClick = (clickInfo) => {
-    if (clickInfo.event.groupId !== "workDay"){
+    if (clickInfo.event.groupId !== "workDay" && this.state.adminState){
       if (confirm(`בטוחים שתרצו למחוק את האירוע '${clickInfo.event.title}'?`)) {
         clickInfo.event.remove()
       }
@@ -520,7 +518,7 @@ export default class App extends React.Component {
 
   handleEvents = (events) => {
     this.setState({
-      currentEvents: Array.from(new Set(events))
+      currentEvents: events
     })
   }
 
@@ -528,7 +526,15 @@ export default class App extends React.Component {
 
 
 function renderEventContent(eventInfo) {
-  return (
+  if (this.state.adminState){
+    return (
+      <div key={eventInfo.event._id}>
+        <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
+        <b>{eventInfo.event.extendedProps.name}</b>
+      </div>
+    )
+  }
+  else return (
     <div key={eventInfo.event._id}>
       <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
       <b>{eventInfo.event.title}</b>
@@ -537,31 +543,63 @@ function renderEventContent(eventInfo) {
 }
 
 function renderSidebarEvent(event) {
-  
   if (event.groupId !== "workDay"){
-    if (event.title === ""){
-      return (
-        <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
-          <div className="cardContent">
-          <p>
-            <b>{event.extendedProps.name} / </b>
-            <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric', minute:'numeric'})}</span>
-          </p>
+      if (!this.state.adminState){
+        if (event.title === ""){
+          return (
+            <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+              <div className="cardContent">
+              <p>
+                <b>{event.extendedProps.name} / </b>
+                <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric', minute:'numeric'})}</span>
+              </p>
+              </div>
+            </div>
+          )
+        }
+        else return (
+          <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+            <div className="cardContent">
+              <p>
+                <b>{event.extendedProps.name} / </b>
+                <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric',
+                  minute:'numeric'})}</span>
+              </p>
+              <p>הערה:<b>{event.title}</b></p>
+            </div>
           </div>
-        </div>
-      )
-    }
-    else return (
-      <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
-        <div className="cardContent">
-          <p>
-            <b>{event.extendedProps.name} / </b>
-            <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric',
-              minute:'numeric'})}</span>
-          </p>
-          <p>הערה:<b>{event.title}</b></p>
-        </div>
-      </div>
-    )
+        )
+      }
+      else {
+        if (event.title === ""){
+          return (
+            <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+              <div className="cardContent">
+              <p>
+                <b>{event.extendedProps.user.phone}</b>
+              </p>
+              <p>
+                <b>{event.extendedProps.name} / </b>
+                <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric', minute:'numeric'})}</span>
+              </p>
+              </div>
+            </div>
+          )
+        }
+        else return (
+          <div key={event._id} className="eventCard" style={{backgroundColor: event.backgroundColor}}>
+            <div className="cardContent">
+              <p><b>{event.extendedProps.user.phone}</b></p>
+              <p>
+                <b>{event.extendedProps.name} / </b>
+                <span dir='rtl'>{formatDate(event.start, {locale: 'he', month: 'long', day: 'numeric', hour: 'numeric',
+                  minute:'numeric'})}</span>
+              </p>
+              <p>הערה:<b>{event.title}</b></p>
+            </div>
+          </div>
+        )
+      }
+    
   }
 }
