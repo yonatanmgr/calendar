@@ -52,13 +52,13 @@ class User{
 //   }
 // }
 
-class Slot{
-  events=[];
-  workers=0;
-  constructor(startTime){
-    this.startTime = startTime
-  }
-}
+// class Slot{
+//   events=[];
+//   workers=0;
+//   constructor(startTime){
+//     this.startTime = startTime
+//   }
+// }
 
 const phoneRegex = new RegExp('^05[0-9]-?[0-9]{7}$')
 
@@ -404,7 +404,7 @@ export default class App extends React.Component {
   renderSidebar() {
     return (
       <div dir='rtl' className="eventList">
-        {this.state.currentEvents.map(renderSidebarEvent)}
+        {this.state.currentEvents.map(this.renderSidebarEvent)}
       </div>
     )
   }
