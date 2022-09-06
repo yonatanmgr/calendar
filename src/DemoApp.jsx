@@ -401,8 +401,7 @@ export default class App extends React.Component {
       )
   }}
 
-  renderSidebar() {
-    useCallback(()=>{if (this.state.adminState){
+  renderSidebar = useCallback(()=>{if (this.state.adminState){
       return (
         <div dir='rtl' className="eventList">
           {this.state.currentEvents.map(adminRenderSidebarEvent)}
@@ -413,8 +412,8 @@ export default class App extends React.Component {
       <div dir='rtl' className="eventList">
         {this.state.currentEvents.map(renderSidebarEvent)}
       </div>
-    )}, this.state.currentEvents)
-  }
+    )}, [this.state.currentEvents])
+  
 
   handleDateSelect = async (selectInfo) => {
     if (!this.state.currentUser.blocked){
