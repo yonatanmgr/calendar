@@ -534,7 +534,7 @@ export default class App extends React.Component {
   
 function renderEventContent(eventInfo) {
   return (
-      <div key={eventInfo.event.extendedProps._id}>
+      <div key={eventInfo.event.id}>
         <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
         <b>{eventInfo.event.title}</b>
       </div>
@@ -542,7 +542,7 @@ function renderEventContent(eventInfo) {
   }
 function adminRenderEventContent(eventInfo) {
     return (
-      <div key={eventInfo.event.extendedProps._id}>
+      <div key={eventInfo.event.id}>
         <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
         <b>{eventInfo.event.extendedProps.name}</b>
       </div>
