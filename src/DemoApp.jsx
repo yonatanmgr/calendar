@@ -405,13 +405,13 @@ export default class App extends React.Component {
     if (this.state.adminState){
       return (
         <div dir='rtl' className="eventList">
-          {this.state.currentEvents.map(this.adminRenderSidebarEvent)}
+          {this.state.currentEvents.map(adminRenderSidebarEvent)}
         </div>
       )
     }
     else return (
       <div dir='rtl' className="eventList">
-        {this.state.currentEvents.map(this.renderSidebarEvent)}
+        {this.state.currentEvents.map(renderSidebarEvent)}
       </div>
     )
   }
