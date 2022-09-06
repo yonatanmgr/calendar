@@ -34,6 +34,7 @@ body > div { /* the react root */
   scroll-behavior: smooth;
   height: 100%;
   width: 100%;
+  font-family: Rubik
 }
 
 @keyframes load-root {

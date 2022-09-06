@@ -229,7 +229,7 @@ export default class App extends React.Component {
         displayEventTime={false}
         events={this.state.events} // alternatively, use the `events` setting to fetch from a feed
         select={this.handleDateSelect}
-        eventContent={this.renderEventContent} // custom render function
+        eventContent={renderEventContent} // custom render function
         eventClick={this.handleEventClick}
         eventsSet={this.handleEvents} // called after events are initialized/added/changed/removed
         
@@ -356,7 +356,7 @@ export default class App extends React.Component {
         displayEventTime={false}
         events={this.state.events} // alternatively, use the `events` setting to fetch from a feed
         select={this.state.selectMode}
-        eventContent={this.adminRenderEventContent} // custom render function
+        eventContent={adminRenderEventContent} // custom render function
         eventClick={this.handleEventClick}
         eventsSet={this.handleEvents} // called after events are initialized/added/changed/removed
         
@@ -534,15 +534,16 @@ export default class App extends React.Component {
   
 function renderEventContent(eventInfo) {
   return (
-      <div key={eventInfo.event.id}>
+      <div key={eventInfo.event.extendedProps._id}>
         <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
         <b>{eventInfo.event.title}</b>
       </div>
     )
   }
+
 function adminRenderEventContent(eventInfo) {
     return (
-      <div key={eventInfo.event.id}>
+      <div key={eventInfo.event.extendedProps._id}>
         <span dir='rtl'>{formatDate(eventInfo.event.start, {locale: 'he', hour: 'numeric', minute:'numeric'})}:</span>
         <b>{eventInfo.event.extendedProps.name}</b>
       </div>
